@@ -1,4 +1,5 @@
-/demo
-/grape
-/mmdet
+/demo/checkpoints/
+/grape/checkpoints
+/grape/data
+/grape/output
 /checkpoints
