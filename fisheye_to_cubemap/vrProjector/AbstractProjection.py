@@ -121,7 +121,7 @@ class AbstractProjection:
         idx = idx + 1
 
 
-  def reprojectToThis(self, sourceProjection):
+  def reprojectToThis(self, sourceProjection, theta_offset= 0, phi_offset= 0):
     for x in range(self.imsize[0]):
       for y in range(self.imsize[1]):
         u = float(x)/float(self.imsize[0])
@@ -130,18 +130,35 @@ class AbstractProjection:
         if theta is None or phi is None:
           pixel = (0,0,0)
         else:
-          pixel = sourceProjection.pixel_value((theta, phi))
+          pixel = sourceProjection.pixel_value((theta, phi), theta_offset= theta_offset, phi_offset= phi_offset)
         self.image[y,x] = pixel
 
-  def point_on_sphere(self, theta, phi):
+  def point_on_sphere(self, theta, phi, theta_offset=0, phi_offset=0):
     r = math.cos(phi)
-    return (r*math.cos(theta), r*math.sin(theta), math.sin(phi))
+    x=r*math.cos(theta)
+    y=r*math.sin(theta)
+    z=math.sin(phi)
 
-  def pixel_value(self, angle):
+    # 垂直方向の回転
+    rotate_matrix_theta = np.array([[1, 0, 0],
+                              [0, math.cos(theta_offset), -math.sin(theta_offset)],
+                              [0, math.sin(theta_offset), math.cos(theta_offset)]])
+    # 水平方向の回転
+    rotate_matrix_phi = np.array([[math.cos(phi_offset), -math.sin(phi_offset), 0],
+                              [math.sin(phi_offset), math.cos(phi_offset), 0],
+                              [0, 0, 1]])
+    
+    x,y,z = np.dot(rotate_matrix_theta, [x,y,z])
+    
+    x,y,z = np.dot(rotate_matrix_phi, [x,y,z])
+
+    return (x, y, z)
+
+  def pixel_value(self, angle, theta_offset=0, phi_offset=0):
     if self.use_bilinear:
-      return self._pixel_value_bilinear_interpolated(angle)
+      return self._pixel_value_bilinear_interpolated(angle, theta_offset= theta_offset, phi_offset= phi_offset)
     else:
-      return self._pixel_value(angle)
+      return self._pixel_value(angle, theta_offset= theta_offset, phi_offset= phi_offset)
 
   @abc.abstractmethod
   def _pixel_value(self, angle):
@@ -188,13 +205,12 @@ class AbstractProjection:
 
   def _pixel_value_bilinear_interpolated(self, angle):
     angleeps = self.angular_resolution/8.0
-    pixelA = self._pixel_value((angle[0]-angleeps, angle[1]-angleeps))
-    pixelB = self._pixel_value((angle[0]-angleeps, angle[1]+angleeps))
-    pixelC = self._pixel_value((angle[0]+angleeps, angle[1]-angleeps))
-    pixelD = self._pixel_value((angle[0]+angleeps, angle[1]+angleeps))
+    pixelA = self._pixel_value((angle[0]-angleeps , angle[1]-angleeps ))
+    pixelB = self._pixel_value((angle[0]-angleeps , angle[1]+angleeps ))
+    pixelC = self._pixel_value((angle[0]+angleeps , angle[1]-angleeps ))
+    pixelD = self._pixel_value((angle[0]+angleeps , angle[1]+angleeps ))
 
     pixelR = self.bilinear_interpolation(0,0, [(-1,-1, pixelA[0]), (-1,1, pixelB[0]), (1,-1, pixelC[0]), (1,1, pixelD[0])])
     pixelG = self.bilinear_interpolation(0,0, [(-1,-1, pixelA[1]), (-1,1, pixelB[1]), (1,-1, pixelC[1]), (1,1, pixelD[1])])
     pixelB = self.bilinear_interpolation(0,0, [(-1,-1, pixelA[2]), (-1,1, pixelB[2]), (1,-1, pixelC[2]), (1,1, pixelD[2])])
-
     return (int(pixelR), int(pixelG), int(pixelB))

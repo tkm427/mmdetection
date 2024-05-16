@@ -20,19 +20,18 @@ class SideBySideFisheyeProjection(AbstractProjection):
   def set_angular_resolution(self):
     self.angular_resolution = math.pi/self.imsize[1]
 
-  def _pixel_value(self, angle):
+  def _pixel_value(self, angle, theta_offset=0, phi_offset=0):
     theta = angle[0]
     phi = angle[1]
     if theta is None or phi is None:
       return (0,0,0)
-
-    r = math.cos(phi)
+    
     # z is elevation in this case
-    sphere_pnt = self.point_on_sphere(theta, phi)
+    sphere_pnt = self.point_on_sphere(theta, phi, theta_offset= theta_offset, phi_offset=phi_offset)
 
     # sphere_pnt.x: [-1..1]
     u = 0.5+(sphere_pnt[0]*-0.5)
-    if theta>=0:
+    if theta >=0:
       u = u*0.5 + 0.5
     else:
       u = (1.0-u)*0.5
