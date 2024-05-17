@@ -90,7 +90,7 @@ class AbstractProjection:
     if( side == 'right' ):#右半分
       img_half = img.crop( ( img.width/2, 0, img.width, img.height ) )
     elif( side == 'left' ):#左半分
-      img_half = img.crop( ( 0, 0, img_width/2, img.height ) )
+      img_half = img.crop( ( 0, 0, img.width/2, img.height ) )
 
     img_half.save(destFile)
 

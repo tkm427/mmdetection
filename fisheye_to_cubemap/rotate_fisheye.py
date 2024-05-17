@@ -29,7 +29,7 @@ def rotate_fisheye(input_img, output_img):
 
     # theta_offset: 垂直方向の回転角度
     # phi_offset: 水平方向の回転角度
-    source.reprojectToThis(source, theta_offset= 0*math.pi /4, phi_offset=0* math.pi/4)
+    source.reprojectToThis(source, theta_offset= math.pi /4, phi_offset= math.pi/4)
     source.saveImage_half('rotate_fisheye.png', side)
 
     # out = vrProjector.CubemapProjection()
