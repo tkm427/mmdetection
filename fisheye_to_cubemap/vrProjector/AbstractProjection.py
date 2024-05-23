@@ -12,9 +12,10 @@
 
 # imports
 from PIL import Image
-import math
+from mpmath import mp
 import abc
 import numpy as np
+import cv2
 
 from multiprocessing.dummy import Pool as ThreadPool
 
@@ -41,13 +42,14 @@ class AbstractProjection:
     img = Image.open(imageFile)
     imsize = img.size
     parsed = Image.new("RGB", imsize, (255, 255, 255))
-    #parsed.paste(img, mask=img.split()[3])
+    # parsed.paste(img, mask=img.split()[3])
     parsed.paste(img )
     npimage = np.array(parsed.getdata(), np.uint8).reshape(img.size[1], img.size[0], 3)
     return npimage, imsize
 
   def loadImage(self, imageFile):
     self.image, self.imsize = self._loadImage(imageFile)
+    cv2.imwrite('load_image.png', self.image)
     self.set_angular_resolution()
 
   @staticmethod
@@ -139,18 +141,19 @@ class AbstractProjection:
     cv2.imwrite('reproject_to_this.png', result)
 
   def point_on_sphere(self, theta, phi, theta_offset=0, phi_offset=0):
-    r = math.cos(phi)
-    x=r*math.cos(theta)
-    y=r*math.sin(theta)
-    z=math.sin(phi)
+    mp.dps = 50
+    r = mp.cos(phi)
+    x=r*mp.cos(theta)
+    y=r*mp.sin(theta)
+    z=mp.sin(phi)
 
     # 垂直方向の回転
     rotate_matrix_theta = np.array([[1, 0, 0],
-                              [0, math.cos(theta_offset), -math.sin(theta_offset)],
-                              [0, math.sin(theta_offset), math.cos(theta_offset)]])
+                              [0, mp.cos(theta_offset), -mp.sin(theta_offset)],
+                              [0, mp.sin(theta_offset), mp.cos(theta_offset)]])
     # 水平方向の回転
-    rotate_matrix_phi = np.array([[math.cos(phi_offset), -math.sin(phi_offset), 0],
-                              [math.sin(phi_offset), math.cos(phi_offset), 0],
+    rotate_matrix_phi = np.array([[mp.cos(phi_offset), -mp.sin(phi_offset), 0],
+                              [mp.sin(phi_offset), mp.cos(phi_offset), 0],
                               [0, 0, 1]])
     
     x,y,z = np.dot(rotate_matrix_theta, [x,y,z])

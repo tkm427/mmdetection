@@ -11,14 +11,15 @@
 
 
 from .AbstractProjection import AbstractProjection
-import math
+from mpmath import mp
 
 class SideBySideFisheyeProjection(AbstractProjection):
   def __init__(self):
     AbstractProjection.__init__(self)
 
   def set_angular_resolution(self):
-    self.angular_resolution = math.pi/self.imsize[1]
+    mp.dps = 50
+    self.angular_resolution = mp.pi/self.imsize[1]
 
   def _pixel_value(self, angle, theta_offset=0, phi_offset=0):
     theta = angle[0]
@@ -43,6 +44,39 @@ class SideBySideFisheyeProjection(AbstractProjection):
 
   @staticmethod
   def angular_position(texcoord):
+    # up = texcoord[0]
+    # v = texcoord[1]
+    # # correct for hemisphere
+    # if up>=0.5:
+    #   u = 2.0*(up-0.5)
+    # else:
+    #   u = 2.0*up
+
+    # # ignore points outside of circles
+    # if ((u-0.5)*(u-0.5) + (v-0.5)*(v-0.5))>0.25:
+    #   return None, None
+
+    # # v: 0..1-> vp: -1..1
+    # mp.dps = 50
+    # phi = mp.asin(2.0*(v-0.5))
+
+    # # u = mp.cos(phi)*mp.cos(theta)
+    # # u: 0..1 -> upp: -1..1
+    # u = 1.0-u
+
+    # #丸め誤差でtheta が計算出来なくなるので，その場合の対応
+    # a = 2.0*(u-0.5) / mp.cos(phi) 
+    # if (a < -1):
+    #   a = -1.0
+    # elif( 1 < a ):
+    #   a = 1.0
+    
+    # theta = mp.acos( a )
+    # #theta = mp.acos( 2.0*(u-0.5) / mp.cos(phi) )
+
+    # if up<0.5:
+    #    theta = theta-mp.pi
+
     up = texcoord[0]
     v = texcoord[1]
     # correct for hemisphere
@@ -56,23 +90,15 @@ class SideBySideFisheyeProjection(AbstractProjection):
       return None, None
 
     # v: 0..1-> vp: -1..1
-    phi = math.asin(2.0*(v-0.5))
+    mp.dps = 100
+    phi = mp.asin(2.0*(v-0.5))
 
     # u = math.cos(phi)*math.cos(theta)
     # u: 0..1 -> upp: -1..1
     u = 1.0-u
-
-    #丸め誤差でtheta が計算出来なくなるので，その場合の対応
-    a = 2.0*(u-0.5) / math.cos(phi) 
-    if (a < -1):
-      a = -1.0
-    elif( 1 < a ):
-      a = 1.0
-    
-    theta = math.acos( a )
-    #theta = math.acos( 2.0*(u-0.5) / math.cos(phi) )
+    theta = mp.acos( 2.0*(u-0.5) / mp.cos(phi) )
 
     if up<0.5:
-       theta = theta-math.pi
+       theta = theta-mp.pi
 
     return (theta,phi)

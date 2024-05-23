@@ -3,7 +3,7 @@ import os
 import numpy as np
 import vrProjector
 import cv2
-import math
+from mpmath import mp
 
 #画像の読み込み.入力画像が左側か右側か知っておく必要あり．
 
@@ -29,7 +29,7 @@ def rotate_fisheye(input_img, output_img):
 
     # theta_offset: 垂直方向の回転角度
     # phi_offset: 水平方向の回転角度
-    source.reprojectToThis(source, theta_offset= math.pi /4, phi_offset= math.pi/4)
+    source.reprojectToThis(source, theta_offset= mp.pi /4, phi_offset= 0*mp.pi/3)
     source.saveImage_half('rotate_fisheye.png', side)
 
     # out = vrProjector.CubemapProjection()
