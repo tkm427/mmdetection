@@ -29,21 +29,24 @@ def rotate_fisheye(input_img, output_img, rotate):
     source.reprojectToThis(source, rotate= rotate)
     source.saveImage_half(output_img, side)
 
-    # out = vrProjector.CubemapProjection()
-    # out.initImages(img_size,img_size)
-    # out.reprojectToThis(source)
-
-    # if( side == 'right' ):
-    #     out.saveImages("front.png", output_img, "back.png", "left.png", "top.png", "bottom.png")
-    # else:
-    #     out.saveImages("front.png", "right.png", "back.png", output_img, "top.png", "bottom.png")
-
 def fisheye_to_cubemap_folder(input_folder, output_folder):
     for image_path in os.listdir(input_folder):
         rotate_fisheye(input_folder + image_path, output_folder + image_path)
 
 inputFile = '/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/test.png'
+firstRotateFile = '/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/first_rotate.png'
+firstRotate90File = '/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/first_rotate90.png'
+tmpFile = '/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/tmp.png'
 outputFile = '/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/output.png'
+outputRotate90File = '/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/output_rotate90.png'
 rotate = mp.pi/4
-rotate_fisheye(inputFile, outputFile, rotate)
+rotate_fisheye(inputFile, firstRotateFile, rotate)
 ## 画像を90度回転
+img = cv2.imread(firstRotateFile)
+img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+cv2.imwrite(firstRotate90File, img)
+rotate_fisheye(firstRotate90File, outputFile, rotate)
+## 画像を-90度回転
+img = cv2.imread(outputFile)
+img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+cv2.imwrite(outputRotate90File, img)
