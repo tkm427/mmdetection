@@ -122,6 +122,9 @@ class AbstractProjection:
 
 
   def reprojectToThis(self, sourceProjection, theta_offset= 0, phi_offset= 0):
+    result = np.zeros((self.imsize[1], self.imsize[0], 3), np.uint8)
+    cv2.imwrite('reproject_to_this_before.png', result)
+
     for x in range(self.imsize[0]):
       for y in range(self.imsize[1]):
         u = float(x)/float(self.imsize[0])
@@ -131,7 +134,9 @@ class AbstractProjection:
           pixel = (0,0,0)
         else:
           pixel = sourceProjection.pixel_value((theta, phi), theta_offset= theta_offset, phi_offset= phi_offset)
-        self.image[y,x] = pixel
+        result[y,x] = pixel
+    self.image = result
+    cv2.imwrite('reproject_to_this.png', result)
 
   def point_on_sphere(self, theta, phi, theta_offset=0, phi_offset=0):
     r = math.cos(phi)
