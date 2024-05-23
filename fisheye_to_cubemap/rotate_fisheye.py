@@ -7,10 +7,8 @@ from mpmath import mp
 
 #画像の読み込み.入力画像が左側か右側か知っておく必要あり．
 
-def rotate_fisheye(input_img, output_img):
+def rotate_fisheye(input_img, output_img, rotate):
     side = 'right'
-    img_size = 480
-
 
     if( (side != 'right') and (side !='left') ):
         print( '3rd argument must be "right" or "left"' ) 
@@ -27,10 +25,9 @@ def rotate_fisheye(input_img, output_img):
     source = vrProjector.SideBySideFisheyeProjection()
     source.loadImage('dualfish_fix.png')
 
-    # theta_offset: 垂直方向の回転角度
-    # phi_offset: 水平方向の回転角度
-    source.reprojectToThis(source, theta_offset= mp.pi /4, phi_offset= 0*mp.pi/3)
-    source.saveImage_half('rotate_fisheye.png', side)
+    # rotate: 左に回転
+    source.reprojectToThis(source, rotate= rotate)
+    source.saveImage_half(output_img, side)
 
     # out = vrProjector.CubemapProjection()
     # out.initImages(img_size,img_size)
@@ -45,8 +42,8 @@ def fisheye_to_cubemap_folder(input_folder, output_folder):
     for image_path in os.listdir(input_folder):
         rotate_fisheye(input_folder + image_path, output_folder + image_path)
 
-# input_folder = '/mmdetection/grape/data/fisheye/'
-# output_folder = '/mmdetection/grape/data/cubemap/'
-# fisheye_to_cubemap_folder(input_folder, output_folder)
-        
-rotate_fisheye('/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/test.png', '/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/hoge_half_rotate.png')
+inputFile = '/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/test.png'
+outputFile = '/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/output.png'
+rotate = mp.pi/4
+rotate_fisheye(inputFile, outputFile, rotate)
+## 画像を90度回転

@@ -123,50 +123,47 @@ class AbstractProjection:
         idx = idx + 1
 
 
-  def reprojectToThis(self, sourceProjection, theta_offset= 0, phi_offset= 0):
+  def reprojectToThis(self, sourceProjection, rotate= 0):
     result = np.zeros((self.imsize[1], self.imsize[0], 3), np.uint8)
     cv2.imwrite('reproject_to_this_before.png', result)
 
     for x in range(self.imsize[0]):
       for y in range(self.imsize[1]):
+        # u: 0..1
         u = float(x)/float(self.imsize[0])
+        # v: 0..1
         v = float(y)/float(self.imsize[1])
         theta, phi = self.angular_position((u,v))
         if theta is None or phi is None:
           pixel = (0,0,0)
         else:
-          pixel = sourceProjection.pixel_value((theta, phi), theta_offset= theta_offset, phi_offset= phi_offset)
+          pixel = sourceProjection.pixel_value((theta, phi), rotate= rotate)
         result[y,x] = pixel
     self.image = result
     cv2.imwrite('reproject_to_this.png', result)
 
-  def point_on_sphere(self, theta, phi, theta_offset=0, phi_offset=0):
+  def point_on_sphere(self, theta, phi, rotate=0):
     mp.dps = 50
     r = mp.cos(phi)
     x=r*mp.cos(theta)
     y=r*mp.sin(theta)
     z=mp.sin(phi)
 
-    # 垂直方向の回転
-    rotate_matrix_theta = np.array([[1, 0, 0],
-                              [0, mp.cos(theta_offset), -mp.sin(theta_offset)],
-                              [0, mp.sin(theta_offset), mp.cos(theta_offset)]])
     # 水平方向の回転
-    rotate_matrix_phi = np.array([[mp.cos(phi_offset), -mp.sin(phi_offset), 0],
-                              [mp.sin(phi_offset), mp.cos(phi_offset), 0],
+    rotate_matrix_phi = np.array([[mp.cos(rotate), -mp.sin(rotate), 0],
+                              [mp.sin(rotate), mp.cos(rotate), 0],
                               [0, 0, 1]])
-    
-    x,y,z = np.dot(rotate_matrix_theta, [x,y,z])
+
     
     x,y,z = np.dot(rotate_matrix_phi, [x,y,z])
 
     return (x, y, z)
 
-  def pixel_value(self, angle, theta_offset=0, phi_offset=0):
+  def pixel_value(self, angle, rotate=0):
     if self.use_bilinear:
-      return self._pixel_value_bilinear_interpolated(angle, theta_offset= theta_offset, phi_offset= phi_offset)
+      return self._pixel_value_bilinear_interpolated(angle, rotate= rotate)
     else:
-      return self._pixel_value(angle, theta_offset= theta_offset, phi_offset= phi_offset)
+      return self._pixel_value(angle, rotate= rotate)
 
   @abc.abstractmethod
   def _pixel_value(self, angle):
