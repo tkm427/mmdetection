@@ -15,7 +15,6 @@ from PIL import Image
 from mpmath import mp
 import abc
 import numpy as np
-import cv2
 
 from multiprocessing.dummy import Pool as ThreadPool
 
@@ -49,7 +48,6 @@ class AbstractProjection:
 
   def loadImage(self, imageFile):
     self.image, self.imsize = self._loadImage(imageFile)
-    cv2.imwrite('load_image.png', self.image)
     self.set_angular_resolution()
 
   @staticmethod
@@ -125,7 +123,6 @@ class AbstractProjection:
 
   def reprojectToThis(self, sourceProjection, rotate= 0):
     result = np.zeros((self.imsize[1], self.imsize[0], 3), np.uint8)
-    cv2.imwrite('reproject_to_this_before.png', result)
 
     for x in range(self.imsize[0]):
       for y in range(self.imsize[1]):
@@ -140,7 +137,6 @@ class AbstractProjection:
           pixel = sourceProjection.pixel_value((theta, phi), rotate= rotate)
         result[y,x] = pixel
     self.image = result
-    cv2.imwrite('reproject_to_this.png', result)
 
   def point_on_sphere(self, theta, phi, rotate=0):
     mp.dps = 50
