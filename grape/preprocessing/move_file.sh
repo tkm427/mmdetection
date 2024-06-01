@@ -6,7 +6,7 @@
 # │   ├── color/
 # │   ├── label/
 # │   └── annotation_coco.json
-# └── test/
+# └── val/
 #     ├── color/
 #     ├── label/
 #     └── annotation_coco.json
