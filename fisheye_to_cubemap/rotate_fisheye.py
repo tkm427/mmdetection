@@ -33,9 +33,6 @@ def fisheye_to_cubemap_folder(input_folder, output_folder):
     for image_path in os.listdir(input_folder):
         rotate_fisheye(input_folder + image_path, output_folder + image_path)
 
-
-input_folder = '/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/input/'
-output_folder = '/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/output/'
 def rotate_fisheye_folder(input_folder, output_folder, rotate):
     for image_path in os.listdir(input_folder):
         rotate_fisheye(input_folder + image_path, output_folder + image_path, rotate)
@@ -49,4 +46,6 @@ def rotate_fisheye_folder(input_folder, output_folder, rotate):
         img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
         cv2.imwrite(output_folder + image_path, img)
 
+input_folder = '/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/input/'
+output_folder = '/Users/nobu/research/mmdetection-grape/fisheye_to_cubemap/output/'
 rotate_fisheye_folder(input_folder, output_folder, mp.pi/6)
