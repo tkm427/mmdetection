@@ -5,8 +5,8 @@ import vrProjector
 import cv2
 
 #画像の読み込み.入力画像が左側か右側か知っておく必要あり．
-
 def fisheye_to_cubemap(input_img, output_img):
+    # 入力画像が右側
     side = 'right'
     img_size = 480
 
