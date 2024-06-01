@@ -1,6 +1,7 @@
 import cv2
 import os
 
+# フォルダ内の画像をリサイズ
 def resize(image_folder_path, output_folder_path):
     for image_path in os.listdir(image_folder_path):
         # 画像読み込み
